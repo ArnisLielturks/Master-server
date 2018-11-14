@@ -94,7 +94,7 @@ app.get('/', (req, res) => {
 
 // get open server
 app.get('/open', (req, res) => {
-    res.send(getOpen());
+    res.send(JSON.stringify(getOpen()) + "\n");
 })
 
 
