@@ -1,0 +1,50 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nat-master-server
+  namespace: default
+  labels:
+    app: nat-master-server
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nat-master-server
+        tier: frontend
+    spec:
+      containers:
+      - name: nat-master-server-image
+        image: arnislielturks/slikenet-nat-server:2
+        ports:
+        - containerPort: 61111
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: nat-master-server-service
+  namespace: default
+spec:
+  selector:
+    app: nat-master-server
+  ports:
+    - protocol: UDP
+      port: 61111
+      targetPort: 61111
+      name: nat-udp
+      nodePort: 30123
+  type: NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nat-master-server-ingress
+spec:
+  rules:
+  - host: nat.frameskippers.com
+    http:
+      paths:
+      - path:
+        backend:
+          serviceName: nat-master-server-service
+          servicePort: 61111
