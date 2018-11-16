@@ -1,0 +1,49 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: master-server
+  namespace: default
+  labels:
+    app: master-server
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: master-server
+        tier: frontend
+    spec:
+      containers:
+      - name: master-server-image
+        image: arnislielturks/master-server:latest
+        ports:
+        - containerPort: 4000
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: master-server-service
+  namespace: default
+spec:
+  selector:
+    app: master-server
+  ports:
+    - protocol: TCP
+      port: 4000
+      targetPort: 4000
+      name: web
+  type: NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: master-server-ingress
+spec:
+  rules:
+  - host: master.frameskippers.com
+    http:
+      paths:
+      - path:
+        backend:
+          serviceName: master-server-service
+          servicePort: 4000
